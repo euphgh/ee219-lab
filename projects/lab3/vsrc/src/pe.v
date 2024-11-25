@@ -12,4 +12,17 @@ module pe #(
     output reg [DATA_WIDTH-1:0] y_out
 );
 
+always @(posedge clk) begin
+    if (!rst) begin
+        y_out <= 0;
+        x_out <= 0;
+        w_out <= 0;
+    end
+    else begin
+        y_out <= y_out + (x_in * w_in);
+        x_out <= x_in;
+        x_out <= x_in;
+    end
+end
+
 endmodule
