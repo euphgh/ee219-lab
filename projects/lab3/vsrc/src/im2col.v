@@ -86,8 +86,8 @@ wire [ADDR_WIDTH-1:0] col = counters[0];
 reg [ADDR_WIDTH-1:0] x_idx;
 reg [ADDR_WIDTH-1:0] y_idx;
 
-wire [ADDR_WIDTH-1:0] y_idx_next = w + h * OUT_W;
-wire [ADDR_WIDTH-1:0] x_idx_next = col + row * FILTER_SIZE + c * (FILTER_SIZE * FILTER_SIZE);
+wire [ADDR_WIDTH-1:0] x_idx_next = w + h * OUT_W;
+wire [ADDR_WIDTH-1:0] y_idx_next = col + row * FILTER_SIZE + c * (FILTER_SIZE * FILTER_SIZE);
 
 
 assign addr_rd = c + ((w + col - PADDING) * IMG_C) + ((h + row - PADDING) * (IMG_C * IMG_W)) +  `ZERO_EXT(IMG_BASE, ADDR_WIDTH);
@@ -117,7 +117,7 @@ always @(posedge clk) begin
         done <= 0;
     end
     else begin
-        done <= (y_idx == GEMM_H - 1) && (x_idx == GEMM_W - 1);
+        done <= (x_idx == GEMM_H - 1) && (y_idx == GEMM_W - 1);
     end
 end
 
