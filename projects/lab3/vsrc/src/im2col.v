@@ -116,7 +116,7 @@ always @(posedge clk) begin
         done <= 0;
     end
     else begin
-        done <= (x_idx == GEMM_H - 1) && (y_idx == GEMM_W - 1);
+        done <= (x_idx == GEMM_H - 1) && (y_idx == GEMM_W - 1) && mem_wr_en;
     end
 end
 
