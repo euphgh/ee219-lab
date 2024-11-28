@@ -21,7 +21,7 @@ always @(posedge clk) begin
     else begin
         y_out <= y_out + (x_in * w_in);
         x_out <= x_in;
-        x_out <= x_in;
+        w_out <= w_in;
     end
 end
 
