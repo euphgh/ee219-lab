@@ -26,43 +26,74 @@ localparam PADDING = FILTER_SIZE == 1 ? 32'd0 : 32'd1;
 localparam OUT_H = (IMG_H + 2 * PADDING - FILTER_SIZE) + 1;
 localparam OUT_W = (IMG_W + 2 * PADDING - FILTER_SIZE) + 1;
 localparam GEMM_W = FILTER_SIZE * FILTER_SIZE * IMG_C;
-localparam GEMM_H = IMG_H * IMG_W;
+localparam GEMM_H = OUT_H * OUT_W;
 
-/* nested counter */
+/* nested counters */
 reg [ADDR_WIDTH-1:0] counters [0:4];
-localparam [ADDR_WIDTH-1:0] MAX_VALUES [0:4] = {OUT_H, OUT_W, IMG_C, FILTER_SIZE, FILTER_SIZE};
+wire [ADDR_WIDTH-1:0] cnt_next [0:4];
+wire is_max [0:4];
+/* verilator lint_off UNOPTFLAT */
+wire wrap_next [0:4];
+reg tick;
+localparam [ADDR_WIDTH-1:0] MAX_VALUES [0:4] = {FILTER_SIZE, FILTER_SIZE, IMG_C, OUT_W, OUT_H};
+
 generate
-    for (genvar i = 0; i < 5; i = i + 1) begin : counter_layer
+    for (genvar i = 0; i < 5; i = i + 1) begin
+        assign is_max[i] = counters[i] == MAX_VALUES[i] - 1;
+        assign cnt_next[i] = is_max[i] ? 0 : counters[i] + 1;
+    end
+endgenerate
+
+always @(posedge clk) begin
+    if (!rst_n) begin
+        tick <= 0;
+    end
+    tick <= ~tick;
+end
+
+always @(posedge clk) begin
+    if (!rst_n) begin
+        counters[0] <= 0;
+    end
+    else if (tick) begin
+        counters[0] <= cnt_next[0]; 
+    end
+end
+assign wrap_next[0] = is_max[0];
+
+generate
+    for (genvar i = 1; i < 5; i = i + 1) begin
         always @(posedge clk) begin
             if (!rst_n) begin
                 counters[i] <= 0;
-            end else if (i == 0 || counters[i - 1] == MAX_VALUES[i - 1]) begin
-                if (counters[i] == MAX_VALUES[i]) begin
-                    counters[i] <= 0;
-                end else begin
-                    counters[i] <= counters[i] + 1;
+            end
+            else begin
+                if (wrap_next[i-1] && tick) begin
+                    counters[i] <= cnt_next[i];
                 end
             end
         end
+        assign wrap_next[i] = wrap_next[i-1] && is_max[i];
     end
 endgenerate
-wire [ADDR_WIDTH-1:0] h = counters[0];
-wire [ADDR_WIDTH-1:0] w = counters[1];
+
+wire [ADDR_WIDTH-1:0] h = counters[4];
+wire [ADDR_WIDTH-1:0] w = counters[3];
 wire [ADDR_WIDTH-1:0] c = counters[2];
-wire [ADDR_WIDTH-1:0] row = counters[3];
-wire [ADDR_WIDTH-1:0] col = counters[4];
+wire [ADDR_WIDTH-1:0] row = counters[1];
+wire [ADDR_WIDTH-1:0] col = counters[0];
 
 reg [ADDR_WIDTH-1:0] x_idx;
 reg [ADDR_WIDTH-1:0] y_idx;
 
-wire [ADDR_WIDTH-1:0] x_idx_next = w + h * OUT_W;
-wire [ADDR_WIDTH-1:0] y_idx_next = col + row * FILTER_SIZE + c * (FILTER_SIZE * FILTER_SIZE);
+wire [ADDR_WIDTH-1:0] y_idx_next = w + h * OUT_W;
+wire [ADDR_WIDTH-1:0] x_idx_next = col + row * FILTER_SIZE + c * (FILTER_SIZE * FILTER_SIZE);
 
 
-wire [ADDR_WIDTH-1:0] load_addr = c + ((w + col - PADDING) * IMG_C) + ((h + row - PADDING) * (IMG_C * IMG_W)) +  `ZERO_EXT(IMG_BASE, ADDR_WIDTH);
+assign addr_rd = c + ((w + col - PADDING) * IMG_C) + ((h + row - PADDING) * (IMG_C * IMG_W)) +  `ZERO_EXT(IMG_BASE, ADDR_WIDTH);
 
 /* column major */
-wire [ADDR_WIDTH-1:0] store_addr = x_idx + (y_idx * GEMM_H) + `ZERO_EXT(IM2COL_BASE, ADDR_WIDTH);
+assign addr_wr = x_idx + (y_idx * GEMM_H) + `ZERO_EXT(IM2COL_BASE, ADDR_WIDTH);
 
 // becasue padding is may be zero
 /* verilator lint_off UNSIGNED */
@@ -80,7 +111,6 @@ localparam STORE = 1;
 localparam DONE = 2;
 assign mem_wr_en = state == STORE;
 assign data_wr = is_padding ? 'd0 : data_rd;
-assign addr_rd = state == LOAD ? load_addr : store_addr;
 
 always @(posedge clk) begin
     if (!rst_n) begin
