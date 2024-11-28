@@ -48,7 +48,9 @@ always @(posedge clk) begin
     if (!rst_n) begin
         tick <= 0;
     end
-    tick <= ~tick;
+    else begin
+        tick <= ~tick;
+    end
 end
 
 always @(posedge clk) begin
@@ -64,7 +66,7 @@ assign wrap_next[0] = is_max[0];
 generate
     for (genvar i = 1; i < 5; i = i + 1) begin
         always @(posedge clk) begin
-            if (!rst_n) begin
+            if (!rst_n || done) begin
                 counters[i] <= 0;
             end
             else begin
@@ -83,11 +85,8 @@ wire [ADDR_WIDTH-1:0] c = counters[2];
 wire [ADDR_WIDTH-1:0] row = counters[1];
 wire [ADDR_WIDTH-1:0] col = counters[0];
 
-reg [ADDR_WIDTH-1:0] x_idx;
-reg [ADDR_WIDTH-1:0] y_idx;
-
-wire [ADDR_WIDTH-1:0] x_idx_next = w + h * OUT_W;
-wire [ADDR_WIDTH-1:0] y_idx_next = col + row * FILTER_SIZE + c * (FILTER_SIZE * FILTER_SIZE);
+wire [ADDR_WIDTH-1:0] x_idx = w + h * OUT_W;
+wire [ADDR_WIDTH-1:0] y_idx = col + row * FILTER_SIZE + c * (FILTER_SIZE * FILTER_SIZE);
 
 
 assign addr_rd = c + ((w + col - PADDING) * IMG_C) + ((h + row - PADDING) * (IMG_C * IMG_W)) +  `ZERO_EXT(IMG_BASE, ADDR_WIDTH);
@@ -124,8 +123,6 @@ end
 always @(posedge clk) begin
     if (!rst_n) begin
         state       <= LOAD; 
-        x_idx      <= 0;
-        y_idx      <= 0;
         data_reg    <= 0;
     end
     else if (state == LOAD) begin
@@ -133,8 +130,6 @@ always @(posedge clk) begin
     end
     else if (state == STORE) begin
         state       <= LOAD;
-        x_idx      <= x_idx_next;
-        y_idx      <= y_idx_next;
     end
 end
 
