@@ -54,30 +54,36 @@ module systolic_array#(
     output  reg done
 );
 
-    wire [DATA_WIDTH-1:0] x_in [M  :0][K-1:0];
-    wire [DATA_WIDTH-1:0] w_in [M-1:0][K  :0];
+    wire [DATA_WIDTH-1:0] x_in [M-1:0][K:0];
+    wire [DATA_WIDTH-1:0] w_in [M:0][K-1:0];
 
 generate
     for (genvar m = 0; m < M; m = m + 1) begin
+        wire [DATA_WIDTH-1:0] data_in  = X[(m + 1) * DATA_WIDTH - 1: m * DATA_WIDTH];
+        wire [DATA_WIDTH-1:0] data_out;
+        assign x_in[m][0] = data_out;
         Repeater #(
             .cycleNR(m),
             .DATA_WIDTH(DATA_WIDTH)
         ) rep_x (
             .clk(clk),
             .rst_n(rst_n),
-            .data_in(X[(m + 1) * DATA_WIDTH - 1: m * DATA_WIDTH]),
-            .data_out(x_in[m][0])
+            .data_in(data_in),
+            .data_out(data_out)
         );
     end
     for (genvar k = 0; k < K; k = k + 1) begin
+        wire [DATA_WIDTH-1:0] data_in  = W[(k + 1) * DATA_WIDTH - 1: k * DATA_WIDTH];
+        wire [DATA_WIDTH-1:0] data_out;
+        assign w_in[0][k] = data_out;
         Repeater #(
             .cycleNR(k),
             .DATA_WIDTH(DATA_WIDTH)
         ) rep_w (
             .clk(clk),
             .rst_n(rst_n),
-            .data_in(W[(k + 1) * DATA_WIDTH - 1: k * DATA_WIDTH]),
-            .data_out(w_in[0][k])
+            .data_in(data_in),
+            .data_out(data_out)
         );
     end
 endgenerate
@@ -92,9 +98,9 @@ generate
                 .clk(clk),
                 .rst(rst_n),
                 .x_in   (x_in[m  ][k  ]),
-                .w_in   (x_in[m  ][k  ]),
-                .x_out  (x_in[m+1][k  ]),
-                .w_out  (w_in[m  ][k+1]),
+                .w_in   (w_in[m  ][k  ]),
+                .x_out  (x_in[m  ][k+1]),
+                .w_out  (w_in[m+1][k  ]),
                 .y_out  (y_out)
             );
             assign Y[m*K*DATA_WIDTH+(k+1)*DATA_WIDTH-1:m*K*DATA_WIDTH+k*DATA_WIDTH] = y_out;
