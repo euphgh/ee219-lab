@@ -39,10 +39,17 @@
 `define OPCODE_BLT      7'b110_0011
 `define FUNCT3_BLT      3'b100
 
+`define OPCODE_R_TYPE   7'b011_0011
+`define OPCODE_I_LOAD   7'b000_0011
+`define OPCODE_I_COMMON 7'b001_0011
+`define OPCODE_S_STORE  7'b010_0011
+`define OPCODE_B_TYPE   7'b110_0011
+`define OPCODE_U_LUI    7'b011_0111
+`define OPCODE_J_JAL    7'b110_1111
+
 // -------------------------------------------------
 // RISC-32M Instruction OPCODE
 // -------------------------------------------------
 `define OPCODE_MUL      7'b011_0011 
 `define FUNCT3_MUL      3'b000
 `define FUNCT7_MUL      7'b000_0001
-
