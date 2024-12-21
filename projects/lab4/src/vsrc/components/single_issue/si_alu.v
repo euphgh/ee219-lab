@@ -1,6 +1,4 @@
-// =======================================
-// You need to finish this module
-// =======================================
+`include "../muxtemplate/mux.v"
 
 module si_alu #(
     parameter PC_START  = 32'h8000_0000, 
@@ -38,5 +36,36 @@ localparam ALU_OP_AND   = 5'd7 ;
 localparam ALU_OP_SLL   = 5'd8 ;
 localparam ALU_OP_SLT   = 5'd9 ;
 localparam ALU_OP_BLT   = 5'd10 ;
+
+MuxKey #(11, ALUOP_DW, REG_DW) alu_mux (
+    .out(alu_result_o),
+    .key(alu_opcode_i),
+    .lut({
+        ALU_OP_BLT,   32'd0,                      // blt
+        ALU_OP_SLT,   {31'd0, operand_1_i < operand_2_i}, // slt
+        ALU_OP_SLL,   operand_1_i << operand_2_i, // sll
+        ALU_OP_AND,   operand_1_i & operand_2_i,  // and
+        ALU_OP_AUIPC, 32'd0,                      // auipc
+        ALU_OP_LUI,   operand_1_i,          // lui
+        ALU_OP_JAL,   current_pc_i + 4,           // jal
+        ALU_OP_BNE,   32'd0,                      // bne
+        ALU_OP_MUL,   operand_1_i * operand_2_i,  // mul
+        ALU_OP_ADD,   operand_1_i + operand_2_i,  // add
+        ALU_OP_NOP,   32'd0                       // nop
+    })
+);
+
+
+assign control_en_o = rst ? 0 : branch_en_i || jump_en_i;
+assign control_pc_o = rst ? 0 : branch_en_i ? 
+    (operand_1_i < operand_2_i ? current_pc_i + branch_offset_i : current_pc_i + 4) :
+    (jump_en_i ? current_pc_i + jump_offset_i : current_pc_i + 4);
+
+// always @(posedge clk) begin
+//     if (alu_opcode_i == ALU_OP_LUI) begin
+//         $display("immu result: %h", operand_1_i);
+//     end
+// end
+
 
 endmodule 

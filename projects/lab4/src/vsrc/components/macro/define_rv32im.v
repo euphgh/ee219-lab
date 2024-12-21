@@ -27,11 +27,11 @@
 
 `define OPCODE_AND      7'b011_0011
 `define FUNCT3_AND      3'b111 
-`define FUCNT7_AND      7'b000_0000
+`define FUNCT7_AND      7'b000_0000
 
 `define OPCODE_SLL      7'b011_0011
 `define FUNCT3_SLL      3'b001 
-`define FUCNT7_SLL      7'b000_0000
+`define FUNCT7_SLL      7'b000_0000
 
 `define OPCODE_SLTI     7'b001_0011
 `define FUNCT3_SLTI     3'b010

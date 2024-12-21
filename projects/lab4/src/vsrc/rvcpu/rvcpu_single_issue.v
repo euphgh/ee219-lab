@@ -193,5 +193,21 @@ si_regfile #(
     .rs2_data_o     ( rs2_data      )
 );
 
+// Debug output
+always @(posedge clk) begin
+    if (!rst) begin
+        $display("PC: %h, Inst: %h, ALU_OP: %h, op1 = %h, op2 = %h", current_pc, inst, alu_opcode, operand_1, operand_2);
+        if (mem_ren) begin
+            $display("Memory read: addr = %h, data = %h=%d", mem_addr, mem_dout, $signed(mem_dout));
+        end
+        if (mem_wen) begin
+            $display("Memory write: addr = %h, data = %h=%d", mem_addr, mem_din, $signed(mem_din));
+        end
+        if (wb_en) begin
+            $display("Register write: x%0d = %h=%d", wb_addr, wb_data, $signed(wb_data));
+        end
+        $display("------------------------");
+    end
+end
 
 endmodule 

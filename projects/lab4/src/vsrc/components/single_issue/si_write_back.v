@@ -22,4 +22,11 @@ assign wb_addr_o    =   (rst == 1'b1)   ? 0 : id_wb_addr_i ;
 assign wb_data_o    =   (rst == 1'b1)   ? 0 : 
                         (id_wb_sel_i)   ? mem_result_i  :   alu_result_i ;
 
+// always @(posedge clk) begin
+//     if (wb_en_o) begin
+//         $display("Register write: x%0d = %h", wb_addr_o, wb_data_o);
+//     end
+// end
+
+
 endmodule

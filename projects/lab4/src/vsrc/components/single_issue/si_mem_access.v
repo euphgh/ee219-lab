@@ -28,5 +28,10 @@ assign ram_addr_o = mem_addr_i ;
 assign ram_mask_o = {(RAM_DW){1'b1}} ;
 assign ram_din_o = mem_din_i ;
 assign mem_dout_o = ram_dout_i ;
+// always @(posedge clk) begin
+//     if (ram_wen_o) begin
+//         $display("Memory write address: %h", mem_addr_i);
+//     end
+// end
 
 endmodule
