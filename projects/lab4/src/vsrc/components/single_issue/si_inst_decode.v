@@ -54,6 +54,7 @@ localparam ALU_OP_AND   = 5'd7 ;
 localparam ALU_OP_SLL   = 5'd8 ;
 localparam ALU_OP_SLT   = 5'd9 ;
 localparam ALU_OP_BLT   = 5'd10 ;
+localparam ALU_OP_JALR  = 5'd11 ;
 
 wire [6:0] opcode   = inst_i[6:0];
 wire [4:0] rd       = inst_i[11:7];
@@ -66,6 +67,7 @@ wire isStore    = opcode == 7'b0100011;
 wire isBranch   = opcode == 7'b1100011;
 wire isLUI      = opcode == 7'b0110111;
 wire isJAL      = opcode == 7'b1101111;
+wire isJALR     = opcode == 7'b1100111;
 wire isImm      = opcode == 7'b0010011;
 wire isReg      = opcode == 7'b0110011;
 wire isMUL      = isReg && funct3 == 3'b0 && funct7 == 7'b1;
@@ -84,14 +86,15 @@ wire [4:0] aluType_op = (funct3 == `FUNCT3_ADD)  ? ALU_OP_ADD :
 assign alu_opcode_o =   (isReg || isImm)  ? (isMUL ? ALU_OP_MUL : aluType_op) : 
                         (isLUI)  ? ALU_OP_LUI : 
                         (isJAL)  ? ALU_OP_JAL : 
+                        (isJALR)  ? ALU_OP_JALR : 
                         (isBranch)  ? ALU_OP_BLT : 
                         (isLoad || isStore)  ? ALU_OP_ADD : ALU_OP_NOP;
 
 assign operand_1_o = isLUI ? (inst_i & ~32'hfff) : rs1_dout_i;
-assign operand_2_o = (isImm || isLoad) ? {{21{inst_i[31]}}, inst_i[30:20]} : 
+assign operand_2_o = (isImm || isLoad || isJALR) ? {{21{inst_i[31]}}, inst_i[30:20]} : 
                         isStore ? {{21{inst_i[31]}}, inst_i[30:25], inst_i[11:7]} : rs2_dout_i;
 
-assign jump_en_o = isJAL;
+assign jump_en_o = isJAL || isJALR;
 assign jump_offset_o = {{12{inst_i[31]}}, inst_i[19:12], inst_i[20], inst_i[30:21], 1'b0};
 
 assign branch_en_o = isBranch;
