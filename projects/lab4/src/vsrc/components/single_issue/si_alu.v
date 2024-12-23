@@ -39,4 +39,15 @@ localparam ALU_OP_SLL   = 5'd8 ;
 localparam ALU_OP_SLT   = 5'd9 ;
 localparam ALU_OP_BLT   = 5'd10 ;
 
+assign alu_result_o =   (alu_opcode_i == ALU_OP_ADD) ? operand_1_i + operand_2_i :
+                        (alu_opcode_i == ALU_OP_AND) ? operand_1_i & operand_2_i :
+                        (alu_opcode_i == ALU_OP_MUL) ? operand_1_i * operand_2_i :
+                        (alu_opcode_i == ALU_OP_LUI) ? operand_1_i :
+                        (alu_opcode_i == ALU_OP_SLL) ? operand_1_i << operand_2_i :
+                        (alu_opcode_i == ALU_OP_SLT) ? {31'd0, {operand_1_i < operand_2_i}} :
+                        (alu_opcode_i == ALU_OP_BLT) ? {31'd0, {operand_1_i < operand_2_i}} : 32'd0;
+
+assign control_en_o = jump_en_i || (alu_result_o[0] && branch_en_i);
+assign control_pc_o = current_pc_i + (jump_en_i ?  jump_offset_i : branch_offset_i);
+
 endmodule 
