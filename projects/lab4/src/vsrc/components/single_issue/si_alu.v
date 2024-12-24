@@ -7,6 +7,7 @@ module si_alu #(
     parameter INST_DW   = 32,
     parameter INST_AW   = 32,
     parameter REG_DW    = 32,
+    parameter ISSUE_NUM = 1,
     parameter ALUOP_DW  = 5
 )(
     input                   clk,
@@ -47,7 +48,7 @@ assign alu_result_o =   (alu_opcode_i == ALU_OP_ADD) ? operand_1_i + operand_2_i
                         (alu_opcode_i == ALU_OP_SLL) ? operand_1_i << operand_2_i :
                         (alu_opcode_i == ALU_OP_SLT) ? {31'd0, {operand_1_i < operand_2_i}} :
                         (alu_opcode_i == ALU_OP_BLT) ? {31'd0, {operand_1_i < operand_2_i}} : 
-                        (jump_en_i) ? current_pc_i + 4 : 32'd0;
+                        (jump_en_i) ? current_pc_i + (4 * ISSUE_NUM) : 32'd0;
 
 assign control_en_o = jump_en_i || (alu_result_o[0] && branch_en_i);
 assign control_pc_o =   (alu_opcode_i == ALU_OP_JALR) ? operand_1_i + operand_2_i :
