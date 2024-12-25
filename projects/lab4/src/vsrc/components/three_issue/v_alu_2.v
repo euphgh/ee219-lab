@@ -21,5 +21,6 @@ localparam VALU_OP_NOP  = 5'd0 ;
 localparam VALU_OP_VADD = 5'd1 ;
 localparam VALU_OP_VMUL = 5'd2 ;
 
+assign valu_result_o = 0;
 
 endmodule

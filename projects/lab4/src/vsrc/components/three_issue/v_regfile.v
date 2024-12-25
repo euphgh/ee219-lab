@@ -34,4 +34,76 @@ module v_regfile #(
     output reg  [VREG_DW-1:0]   is2_vs2_data_o
 );
 
+integer i ;
+
+reg [VREG_DW-1:0] regfile [2**VREG_AW-1:0] ;
+
+always @(posedge clk ) begin
+    if ( rst == 1'b1 ) begin
+        for(i=0; i<2**VREG_AW; i=i+1) begin
+            regfile[ i ] <= {(VREG_DW){1'b0}} ;
+        end
+    end else begin
+        if ( is1_vwb_en_i && (is1_vwb_addr_i != 0) ) begin
+            regfile[ is1_vwb_addr_i ] <= is1_vwb_data_i ;
+            if ( is2_vwb_en_i && (is2_vwb_addr_i == is1_vwb_addr_i) ) begin
+                $finish("v regfile write back conflict");
+            end
+        end
+        else if ( is2_vwb_en_i && (is2_vwb_addr_i != 0) ) begin
+            regfile[ is2_vwb_addr_i ] <= is2_vwb_data_i ;
+        end
+        else begin
+        end 
+    end
+end
+
+always @(*) begin
+    if( rst == 1'b1 ) begin
+        is1_vs1_data_o = {(VREG_DW){1'b0}} ;
+    end else begin
+        if ( is1_vs1_en_i ) begin
+            is1_vs1_data_o = regfile[ is1_vs1_addr_i ] ;
+        end else begin
+            is1_vs1_data_o = {(VREG_DW){1'b0}} ;
+        end
+    end
+end
+
+always @(*) begin
+    if( rst == 1'b1 ) begin
+        is1_vs2_data_o = {(VREG_DW){1'b0}} ;
+    end else begin
+        if ( is1_vs2_en_i ) begin
+            is1_vs2_data_o = regfile[ is1_vs2_addr_i ] ;
+        end else begin
+            is1_vs2_data_o = {(VREG_DW){1'b0}} ;
+        end
+    end
+end
+
+always @(*) begin
+    if( rst == 1'b1 ) begin
+        is2_vs1_data_o = {(VREG_DW){1'b0}} ;
+    end else begin
+        if ( is2_vs1_en_i ) begin
+            is2_vs1_data_o = regfile[ is2_vs1_addr_i ] ;
+        end else begin
+            is2_vs1_data_o = {(VREG_DW){1'b0}} ;
+        end
+    end
+end
+
+always @(*) begin
+    if( rst == 1'b1 ) begin
+        is2_vs2_data_o = {(VREG_DW){1'b0}} ;
+    end else begin
+        if ( is2_vs2_en_i ) begin
+            is2_vs2_data_o = regfile[ is2_vs2_addr_i ] ;
+        end else begin
+            is2_vs2_data_o = {(VREG_DW){1'b0}} ;
+        end
+    end
+end
+
 endmodule
