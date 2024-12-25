@@ -32,7 +32,7 @@ using namespace std;
 static Vtop* top;
 static VerilatedVcdC* tfp;
 static vluint64_t main_time = 0;
-static const vluint64_t sim_time = 100000;
+static const vluint64_t sim_time = 200000;
 
 static uint32_t data_baseaddr[6] = {dataA_baseaddr, dataAT_baseaddr, dataB_baseaddr, dataBT_baseaddr, dataC_baseaddr, dataCT_baseaddr} ;
 
@@ -236,6 +236,10 @@ int main(int argc, char **argv) {
 		top->eval();
 		tfp->dump(main_time);
 		main_time++;
+		if (get_ram_err()) {
+			tfp->close();
+			exit(-1);
+		}
 	}
 
 	tfp->close();
