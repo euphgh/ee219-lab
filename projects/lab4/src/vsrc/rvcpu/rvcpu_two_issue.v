@@ -208,7 +208,8 @@ si_alu #(
     .INST_DW        ( INST_DW       ),
     .INST_AW        ( INST_AW       ),
     .REG_DW         ( REG_DW        ),
-    .ALUOP_DW       ( ALUOP_DW      )
+    .ALUOP_DW       ( ALUOP_DW      ),
+    .ISSUE_WIDTH    ( ISSUE_NUM   )
 ) MI_S_ALU (
     .clk            ( clk           ),
     .rst            ( rst           ),
@@ -357,31 +358,31 @@ v_regfile #(
 
 
 // Debug output
-always @(posedge clk) begin
-    if (!rst) begin
-        $display("PC: %h, s_inst: %h, ALU_OP: %h, op1 = %h, op2 = %h", current_pc, s_inst, alu_opcode, operand_1, operand_2);
-        if (mem_ren) begin
-            $display("Memory read: addr = %h, data = %h=%d", mem_addr, mem_dout, $signed(mem_dout));
-        end
-        if (mem_wen) begin
-            $display("Memory write: addr = %h, data = %h=%d", mem_addr, mem_din, $signed(mem_din));
-        end
-        if (wb_en) begin
-            $display("Register write: x%0d = %h=%d", wb_addr, wb_data, $signed(wb_data));
-        end
-        $display("---------vector:------------");
-        $display("vPC: %h, v_inst: %h, v_alu_opcode: %h, v_op1 = %h, v_op2 = %h", current_pc + 4, v_inst, valu_opcode, valu_operand_1, valu_operand_2);
-        if (vmem_ren) begin
-            $display("Vector memory read: addr = %h, data = %h=%d", vmem_addr, vmem_dout, $signed(vmem_dout));
-        end
-        if (vmem_wen) begin
-            $display("Vector memory write: addr = %h, data = %h=%d", vmem_addr, vmem_din, $signed(vmem_din));
-        end
-        if (vwb_en) begin
-            $display("Vector register write: x%0d = %h=%d", vwb_addr, vwb_data, $signed(vwb_data));
-        end
-        $display("--------------------------------");
-    end
-end
+// always @(posedge clk) begin
+//     if (!rst) begin
+//         $display("PC: %h, s_inst: %h, ALU_OP: %h, op1 = %h, op2 = %h", current_pc, s_inst, alu_opcode, operand_1, operand_2);
+//         if (mem_ren) begin
+//             $display("Memory read: addr = %h, data = %h=%d", mem_addr, mem_dout, $signed(mem_dout));
+//         end
+//         if (mem_wen) begin
+//             $display("Memory write: addr = %h, data = %h=%d", mem_addr, mem_din, $signed(mem_din));
+//         end
+//         if (wb_en) begin
+//             $display("Register write: x%0d = %h=%d", wb_addr, wb_data, $signed(wb_data));
+//         end
+//         $display("---------vector:------------");
+//         $display("vPC: %h, v_inst: %h, v_alu_opcode: %h, v_op1 = %h, v_op2 = %h", current_pc + 4, v_inst, valu_opcode, valu_operand_1, valu_operand_2);
+//         if (vmem_ren) begin
+//             $display("Vector memory read: addr = %h, data = %h=%d", vmem_addr, vmem_dout, $signed(vmem_dout));
+//         end
+//         if (vmem_wen) begin
+//             $display("Vector memory write: addr = %h, data = %h=%d", vmem_addr, vmem_din, $signed(vmem_din));
+//         end
+//         if (vwb_en) begin
+//             $display("Vector register write: x%0d = %h=%d", vwb_addr, vwb_data, $signed(vwb_data));
+//         end
+//         $display("--------------------------------");
+//     end
+// end
 
 endmodule 

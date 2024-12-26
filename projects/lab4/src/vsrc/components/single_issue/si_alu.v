@@ -5,7 +5,8 @@ module si_alu #(
     parameter INST_DW   = 32,
     parameter INST_AW   = 32,
     parameter REG_DW    = 32,
-    parameter ALUOP_DW  = 5
+    parameter ALUOP_DW  = 5,
+    parameter ISSUE_WIDTH = 1
 )(
     input                   clk,
     input                   rst,
@@ -58,8 +59,8 @@ MuxKey #(11, ALUOP_DW, REG_DW) alu_mux (
 
 assign control_en_o = rst ? 0 : branch_en_i || jump_en_i;
 assign control_pc_o = rst ? 0 : branch_en_i ? 
-    (operand_1_i < operand_2_i ? current_pc_i + branch_offset_i : current_pc_i + 4) :
-    (jump_en_i ? current_pc_i + jump_offset_i : current_pc_i + 4);
+    (operand_1_i < operand_2_i ? current_pc_i + branch_offset_i : current_pc_i + 4*ISSUE_WIDTH) :
+    (jump_en_i ? current_pc_i + jump_offset_i : current_pc_i + 4*ISSUE_WIDTH);
 
 // always @(posedge clk) begin
 //     if (alu_opcode_i == ALU_OP_LUI) begin

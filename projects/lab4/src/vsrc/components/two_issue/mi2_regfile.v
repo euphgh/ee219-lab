@@ -37,7 +37,7 @@ always @(posedge clk) begin
     end else begin
         if (is1_wb_en_i && is1_wb_addr_i != 0) begin
             regfile[is1_wb_addr_i] <= is1_wb_data_i;
-            $display("write is1_wb_data_i = %h", is1_wb_data_i);
+            // $display("write is1_wb_data_i = %h", is1_wb_data_i);
         end
     end
 end
@@ -50,14 +50,14 @@ always @(*) begin
     end else begin
         if (is1_rs1_en_i) begin
             is1_rs1_data_o = regfile[is1_rs1_addr_i];
-            $display("read is1_rs1_data_o = %h", is1_rs1_data_o);
+            // $display("read is1_rs1_data_o = %h", is1_rs1_data_o);
         end else begin
             is1_rs1_data_o = 0;
         end
         
         if (is1_rs2_en_i) begin
             is1_rs2_data_o = regfile[is1_rs2_addr_i];
-            $display("read is1_rs2_data_o = %h", is1_rs2_data_o);
+            // $display("read is1_rs2_data_o = %h", is1_rs2_data_o);
         end else begin
             is1_rs2_data_o = 0;
         end
@@ -71,7 +71,7 @@ always @(*) begin
     end else begin
         if (is2_rs1_en_i) begin
             is2_rs1_data_o = regfile[is2_rs1_addr_i];
-            $display("read is2_rs1_data_o = %h", is2_rs1_data_o);
+            // $display("read is2_rs1_data_o = %h", is2_rs1_data_o);
         end else begin
             is2_rs1_data_o = 0;
         end
