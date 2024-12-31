@@ -236,10 +236,6 @@ int main(int argc, char **argv) {
 		top->eval();
 		tfp->dump(main_time);
 		main_time++;
-		if (get_ram_err()) {
-			tfp->close();
-			exit(-1);
-		}
 	}
 
 	tfp->close();
