@@ -1,7 +1,7 @@
 `define VLEN            512
 `define SEW             64
 `define LMUL            1
-`define VLMAX           (`VLEN/`SEW) * `LMUL
+`define VLMAX           ((`VLEN/`SEW) * `LMUL)
 
 `define VINST_BUS       31:0
 `define SREG_BUS        63:0
